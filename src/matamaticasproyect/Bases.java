@@ -1,33 +1,44 @@
 package matamaticasproyect;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import javax.swing.JTextArea;
 
 /**
  * @author alex
  */
 public class Bases {
         
-    private ArrayList<Double> numeros;
-    private Double[] raices;
+    private ArrayList<Float> numeros;
+    private Float[] raices;
     private String[] raicesRet;
     private boolean cambios;
     private int numeroRaiz;
+    private JTextArea txtArea;
+    private DecimalFormat formatoNum = new DecimalFormat("#.00");
     
-    public Bases(ArrayList<Double> numeros){
+    public Bases(ArrayList<Float> numeros, JTextArea txtArea){
+        DecimalFormatSymbols separador = new DecimalFormatSymbols();
+        separador.setDecimalSeparator('.');
+        this.formatoNum = new DecimalFormat("#.00", separador);
         this.numeros = numeros;
         this.cambios = false;
         this.numeroRaiz = 0;
+        this.txtArea = txtArea;
     }
-    public Bases() {
-        this.numeros = new ArrayList<Double>();
+    public Bases(JTextArea txtArea) {
+        DecimalFormatSymbols separador = new DecimalFormatSymbols();
+        separador.setDecimalSeparator('.');
+        this.formatoNum = new DecimalFormat("#.00", separador);        
+        this.numeros = new ArrayList<>();
         this.cambios = false;
         this.numeroRaiz = 0;
+        this.txtArea = txtArea;
     }
-    
-    public int getSize(){
+    protected int getSize(){
         return numeros.size();
-    }
-    
+    }  
     public String fraccionToString(Float dividendo, Float divisor){
         if(dividendo % divisor == 0)
             return dividendo/divisor+"";
@@ -42,7 +53,7 @@ public class Bases {
         return dividendo+"/"+divisor;
     }
     public void defRaices(){
-       this.raices = new Double[numeros.size()-1];
+       this.raices = new Float[numeros.size()-1];
        this.raicesRet = new String[numeros.size()-1];
     }
 
@@ -55,19 +66,18 @@ public class Bases {
  
         for(int x = 0;x<ti.size() && !cambios;x++){
             for(int y = 0;y<cp.size() && !cambios;y++){
-                mapPos = new Ruffini(ti.get(x)/cp.get(y).doubleValue(),this.numeros);
-                mapNeg = new Ruffini(-ti.get(x)/cp.get(y).doubleValue(),this.numeros);
-
-                if(mapPos.isRaiz() || mapNeg.isRaiz()){
-                    if(mapPos.isRaiz()){
-                        raices[numeroRaiz] = (double)ti.get(x)/cp.get(y);
-                        upgradeNumeros(new Ruffini(raices[numeroRaiz],this.numeros),numeroRaiz);
-                        raicesRet[numeroRaiz++] = this.fraccionToString((float)ti.get(x),(float)cp.get(y));
-                    }else if(mapNeg.isRaiz()){
-                        raices[numeroRaiz] = (double)-ti.get(x)/cp.get(y);
-                        upgradeNumeros(new Ruffini(raices[numeroRaiz],this.numeros),numeroRaiz);
-                        raicesRet[numeroRaiz++] = this.fraccionToString((float)-ti.get(x),(float)cp.get(y));
-                    }
+                mapPos = new Ruffini(ti.get(x)/cp.get(y).floatValue(), this.numeros, this.formatoNum);
+                mapNeg = new Ruffini(-ti.get(x)/cp.get(y).floatValue(), this.numeros, this.formatoNum);
+             
+               if(mapPos.isRaiz()){
+                    raices[numeroRaiz] = (float)ti.get(x)/cp.get(y);
+                    upgradeNumeros(new Ruffini(raices[numeroRaiz],this.numeros, this.formatoNum),numeroRaiz);
+                    raicesRet[numeroRaiz++] = this.fraccionToString((float)ti.get(x),(float)cp.get(y));
+                    cambios = true;
+                }else if(mapNeg.isRaiz()){
+                    raices[numeroRaiz] = (float)-ti.get(x)/cp.get(y);
+                    upgradeNumeros(new Ruffini(raices[numeroRaiz],this.numeros, this.formatoNum),numeroRaiz);
+                    raicesRet[numeroRaiz++] = this.fraccionToString((float)-ti.get(x),(float)cp.get(y));
                     cambios = true;
                 }
             }
@@ -77,53 +87,38 @@ public class Bases {
                 double a=numeros.get(2),
                         b = numeros.get(1),
                         c = numeros.get(0);
-
-                double arriba[] = {-b+Math.sqrt(b*b-4*a*c),-b-Math.sqrt(b*b-4*a*c)}, 
-                        abajo = 2*a;
-                if(!Double.isNaN(arriba[0])){
-                    for(int x = 0;x<2;x++){
-                        raices[numeroRaiz] = arriba[x]/abajo;
-                        upgradeNumeros(new Ruffini(raices[numeroRaiz],this.numeros),numeroRaiz);
-                        raicesRet[numeroRaiz++] = this.fraccionToString((float)arriba[x],(float)abajo);  
-                    }
+                        
+                double arribaRaiz= Math.sqrt(b*b-4*a*c);
+                int cambioSigno = -1;
+                if(!Double.isNaN(arribaRaiz)){
+                    do{
+                        raices[numeroRaiz] = Float.parseFloat((-b+(arribaRaiz*cambioSigno))/(2*a)+"");
+                        upgradeNumeros(new Ruffini(raices[numeroRaiz], this.numeros, this.formatoNum),numeroRaiz);
+                        raicesRet[numeroRaiz++] = this.fraccionToString(
+                                Float.parseFloat(-b+(arribaRaiz*cambioSigno)+""),
+                                Float.parseFloat((2*a)+"")
+                        );  
+                        cambioSigno = 1;
+                    }while(cambioSigno == 1);
                 }
                 cambios = false;
-            }else{
-                Double x = -100.0;
-                double error = Math.pow(10, -3);
-                int contador = 0;
-                do{
-                    map = new Ruffini(x,this.numeros);
-                    map.calcular();
-                    if(Math.abs(map.getImagen()) < error)
-                        error=Math.abs(map.getImagen())/10;
-                    x+=error;   
-                    contador++;
-                }while(error > Math.pow(10, -10) && x < 100 && contador < 200000);
-
-                if(x < 100){                   
-                    raices[numeroRaiz] = x;
-                    upgradeNumeros(map,numeroRaiz);                    
-                    raicesRet[numeroRaiz++] = x.toString();
-                    cambios = true;
-                }
             }
         }
         if(cambios){
             this.cambios = false;
             this.getRaices();
-        }else
-            System.out.println("Proceso terminado");
+        }//else
+            //System.out.println("Proceso terminado");
         return raicesRet;
     }
 
     public void upgradeNumeros(Ruffini map,int lugar){
         map.calcular();
-        map.mostrar(lugar);
+        map.mostrar(lugar,txtArea);
         this.numeros = map.retornaArray();
     }
-    public ArrayList<Integer> divisores(double valor){
-        ArrayList<Integer> resultado = new ArrayList<Integer>();
+    public ArrayList<Integer> divisores(float valor){
+        ArrayList<Integer> resultado = new ArrayList<>();
         
         if(Math.abs(valor) == 0){
             resultado.add(0);
@@ -140,15 +135,15 @@ public class Bases {
             System.out.println(numeros.get(x));
         }
     }
-    public Double toDouble(String numero){
+    public Float toFloat(String numero){
         try {
-           return Double.parseDouble(numero);
-        } catch (Exception e) { 
+           return Float.parseFloat(numero);
+        } catch (NumberFormatException err) { 
            return null;
         }
 
     }
-    public void add(double numero){
-        this.numeros.add(numero);
+    public void add(String numero){
+        this.numeros.add(this.toFloat(numero));
     }
 }

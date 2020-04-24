@@ -19,7 +19,7 @@ public class Interfaz extends javax.swing.JFrame {
     public Interfaz() {
         this.setLocationRelativeTo(null);
         initComponents();
-        calc = new Bases();
+        calc = new Bases(this.txtAreaRespuesta);
     }
 
     /**
@@ -31,45 +31,67 @@ public class Interfaz extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        pnlPrincipal = new javax.swing.JPanel();
         inputNumero = new javax.swing.JTextField();
         labelPotencia = new javax.swing.JLabel();
         calcular = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
+        PanelRespuesta = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        txtAreaRespuesta = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(500, 400));
-        setResizable(false);
-        getContentPane().setLayout(new java.awt.GridLayout(2, 2, 10, 5));
+        setTitle("Riffini Proyect");
+        setSize(new java.awt.Dimension(100, 3000));
+        getContentPane().setLayout(new java.awt.GridLayout(2, 1, 10, 5));
 
-        inputNumero.setFont(new java.awt.Font("Ubuntu", 0, 24)); // NOI18N
+        pnlPrincipal.setLayout(new java.awt.GridLayout(2, 2));
+
+        inputNumero.setFont(new java.awt.Font("Times New Roman", 0, 48)); // NOI18N
         inputNumero.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         inputNumero.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 inputNumeroKeyPressed(evt);
             }
         });
-        getContentPane().add(inputNumero);
+        pnlPrincipal.add(inputNumero);
 
+        labelPotencia.setFont(new java.awt.Font("Times New Roman", 0, 24)); // NOI18N
         labelPotencia.setText("x^"+potencia);
         labelPotencia.setToolTipText("");
-        getContentPane().add(labelPotencia);
+        pnlPrincipal.add(labelPotencia);
 
-        calcular.setFont(new java.awt.Font("Ubuntu", 0, 24)); // NOI18N
+        calcular.setFont(new java.awt.Font("Times New Roman", 0, 24)); // NOI18N
         calcular.setText("Calcular");
         calcular.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 calcularActionPerformed(evt);
             }
         });
-        getContentPane().add(calcular);
+        pnlPrincipal.add(calcular);
 
+        jTextArea1.setEditable(false);
         jTextArea1.setColumns(20);
-        jTextArea1.setFont(new java.awt.Font("Ubuntu", 0, 24)); // NOI18N
+        jTextArea1.setFont(new java.awt.Font("Times New Roman", 0, 24)); // NOI18N
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
 
-        getContentPane().add(jScrollPane1);
+        pnlPrincipal.add(jScrollPane1);
+
+        getContentPane().add(pnlPrincipal);
+
+        PanelRespuesta.setLayout(new javax.swing.OverlayLayout(PanelRespuesta));
+
+        txtAreaRespuesta.setEditable(false);
+        txtAreaRespuesta.setColumns(20);
+        txtAreaRespuesta.setFont(new java.awt.Font("Times New Roman", 0, 24)); // NOI18N
+        txtAreaRespuesta.setRows(5);
+        jScrollPane2.setViewportView(txtAreaRespuesta);
+
+        PanelRespuesta.add(jScrollPane2);
+
+        getContentPane().add(PanelRespuesta);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -77,6 +99,7 @@ public class Interfaz extends javax.swing.JFrame {
     private void calcularActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_calcularActionPerformed
         String texto;
         String[] raices; 
+        this.txtAreaRespuesta.setText("");
         if(this.calc.getSize()>0){
             this.calc.defRaices();
             raices = this.calc.getRaices();
@@ -96,7 +119,7 @@ public class Interfaz extends javax.swing.JFrame {
         }else{
            this.jTextArea1.setText("Agrega Numeros");
         }
-        calc = new Bases();
+        calc = new Bases(this.txtAreaRespuesta);
     }//GEN-LAST:event_calcularActionPerformed
 
     private void inputNumeroKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_inputNumeroKeyPressed
@@ -104,7 +127,7 @@ public class Interfaz extends javax.swing.JFrame {
             if(this.inputNumero.getText().equals(""))
                 this.calcularActionPerformed(null);
             else{
-                this.calc.add(this.calc.toDouble(this.inputNumero.getText()));
+                this.calc.add(this.inputNumero.getText());
                 this.labelPotencia.setText("x^"+(++potencia));
                 this.jTextArea1.setText("");
                 this.inputNumero.setText("");
@@ -113,10 +136,14 @@ public class Interfaz extends javax.swing.JFrame {
     }//GEN-LAST:event_inputNumeroKeyPressed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel PanelRespuesta;
     private javax.swing.JButton calcular;
     private javax.swing.JTextField inputNumero;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JLabel labelPotencia;
+    private javax.swing.JPanel pnlPrincipal;
+    public javax.swing.JTextArea txtAreaRespuesta;
     // End of variables declaration//GEN-END:variables
 }
