@@ -19,31 +19,31 @@ public class Ruffini {
         for(int x = 1 ;x<=this.grado;x++)
             this.mapa[x][0] = Float.parseFloat(formatoNum.format(funcion.get(grado-x)));
     }
-    double getImagen(){
+    double tomarImagen(){
         return mapa[grado][2];
     }
-    void calcular(){
+    void hacerCalculosDeLaTabla(){
         this.mapa[1][2] = this.mapa[1][0];
         for(int x = 0;x<grado-1;x++){
             this.mapa[x+2][1] = Float.parseFloat(formatoNum.format(this.mapa[x+1][2]*this.mapa[0][1]));
             this.mapa[x+2][2] = Float.parseFloat(formatoNum.format(this.mapa[x+2][1]+this.mapa[x+2][0]));
         }
     }
-    boolean isRaizAprox(){
-        this.calcular();
+    boolean esRaizAprox(){
+        this.hacerCalculosDeLaTabla();
         return Math.abs(mapa[grado][2].compareTo(0f)) < 1;
     }
-    boolean isRaiz(){
-        this.calcular();
+    boolean esRaiz(){
+        this.hacerCalculosDeLaTabla();
         return mapa[grado][2] == 0.0;
     }
-    ArrayList<Float> retornaArray(){
+    ArrayList<Float> tomarArray(){
         ArrayList<Float> ret =new ArrayList<Float>();
         for(int x = 1 ;x<this.grado;x++)
             ret.add(mapa[grado-x][2]);
         return ret;
     }
-    void mostrar(int numero, JTextArea txtArea){
+    void mostrarTablaRuffini(int numero, JTextArea txtArea){
         txtArea.append("\n");
         txtArea.append("Ruffini numero:"+numero+"\n\n");
         

@@ -10,36 +10,34 @@ import javax.swing.JTextArea;
  */
 public class Bases {
         
-    private ArrayList<Float> numeros;
+    private ArrayList<Float> polinomio;
     private Float[] raices;
-    private String[] raicesRet;
-    private boolean cambios;
-    private int numeroRaiz;
-    private JTextArea txtArea;
+    private String[] raicesEnString;
+    private boolean continuoElCiclo;
+    private int contNumeroDeRaices;
+    private JTextArea txtAreaDeVRuffini;
     private DecimalFormat formatoNum = new DecimalFormat("#.00");
     
     public Bases(ArrayList<Float> numeros, JTextArea txtArea){
         DecimalFormatSymbols separador = new DecimalFormatSymbols();
         separador.setDecimalSeparator('.');
         this.formatoNum = new DecimalFormat("#.00", separador);
-        this.numeros = numeros;
-        this.cambios = false;
-        this.numeroRaiz = 0;
-        this.txtArea = txtArea;
+        this.polinomio = numeros;
+        this.contNumeroDeRaices = 0;
+        this.txtAreaDeVRuffini = txtArea;
     }
     public Bases(JTextArea txtArea) {
         DecimalFormatSymbols separador = new DecimalFormatSymbols();
         separador.setDecimalSeparator('.');
         this.formatoNum = new DecimalFormat("#.00", separador);        
-        this.numeros = new ArrayList<>();
-        this.cambios = false;
-        this.numeroRaiz = 0;
-        this.txtArea = txtArea;
+        this.polinomio = new ArrayList<>();
+        this.contNumeroDeRaices = 0;
+        this.txtAreaDeVRuffini = txtArea;
     }
-    protected int getSize(){
-        return numeros.size();
+    protected int tomarGradoDelPolinomio(){
+        return polinomio.size();
     }  
-    public String fraccionToString(Float dividendo, Float divisor){
+    public String fraccionAString(Float dividendo, Float divisor){
         if(dividendo % divisor == 0)
             return dividendo/divisor+"";
         if(dividendo < 0 && divisor < 0)
@@ -53,71 +51,72 @@ public class Bases {
         return dividendo+"/"+divisor;
     }
     public void defRaices(){
-       this.raices = new Float[numeros.size()-1];
-       this.raicesRet = new String[numeros.size()-1];
+       this.raices = new Float[polinomio.size()-1];
+       this.raicesEnString = new String[polinomio.size()-1];
     }
 
-    public String[] getRaices(){   
+    public String[] agarrarRaices(){   
         
-        ArrayList<Integer> ti =  divisores(numeros.get(0));
-        ArrayList<Integer> cp =  divisores(numeros.get(numeros.size()-1));
+        ArrayList<Integer> ti =  tomarDivisores(polinomio.get(0));
+        ArrayList<Integer> cp =  tomarDivisores(polinomio.get(polinomio.size()-1));
         
         Ruffini map, mapPos, mapNeg;
- 
-        for(int x = 0;x<ti.size() && !cambios;x++){
-            for(int y = 0;y<cp.size() && !cambios;y++){
-                mapPos = new Ruffini(ti.get(x)/cp.get(y).floatValue(), this.numeros, this.formatoNum);
-                mapNeg = new Ruffini(-ti.get(x)/cp.get(y).floatValue(), this.numeros, this.formatoNum);
+        this.continuoElCiclo = false;
+
+        // teorema de raiz racional
+        for(int x = 0;x<ti.size() && !continuoElCiclo;x++){
+            for(int y = 0;y<cp.size() && !continuoElCiclo;y++){
+                mapPos = new Ruffini(ti.get(x)/cp.get(y).floatValue(), this.polinomio, this.formatoNum);
+                mapNeg = new Ruffini(-ti.get(x)/cp.get(y).floatValue(), this.polinomio, this.formatoNum);
              
-               if(mapPos.isRaiz()){
-                    raices[numeroRaiz] = (float)ti.get(x)/cp.get(y);
-                    upgradeNumeros(new Ruffini(raices[numeroRaiz],this.numeros, this.formatoNum),numeroRaiz);
-                    raicesRet[numeroRaiz++] = this.fraccionToString((float)ti.get(x),(float)cp.get(y));
-                    cambios = true;
-                }else if(mapNeg.isRaiz()){
-                    raices[numeroRaiz] = (float)-ti.get(x)/cp.get(y);
-                    upgradeNumeros(new Ruffini(raices[numeroRaiz],this.numeros, this.formatoNum),numeroRaiz);
-                    raicesRet[numeroRaiz++] = this.fraccionToString((float)-ti.get(x),(float)cp.get(y));
-                    cambios = true;
+               if(mapPos.esRaiz()){
+                    raices[contNumeroDeRaices] = (float)ti.get(x)/cp.get(y);
+                    actualizarNumeros(new Ruffini(raices[contNumeroDeRaices],this.polinomio, this.formatoNum),contNumeroDeRaices);
+                    raicesEnString[contNumeroDeRaices++] = this.fraccionAString((float)ti.get(x),(float)cp.get(y));
+                    continuoElCiclo = true;
+                }if(mapNeg.esRaiz()){
+                    raices[contNumeroDeRaices] = (float)-ti.get(x)/cp.get(y);
+                    actualizarNumeros(new Ruffini(raices[contNumeroDeRaices],this.polinomio, this.formatoNum),contNumeroDeRaices);
+                    raicesEnString[contNumeroDeRaices++] = this.fraccionAString((float)-ti.get(x),(float)cp.get(y));
+                    continuoElCiclo = true;
                 }
             }
         }
-        if(!cambios){
-            if(numeros.size() == 3){
-                double a=numeros.get(2),
-                        b = numeros.get(1),
-                        c = numeros.get(0);
+        if(!continuoElCiclo){
+            if(polinomio.size() == 3){  
+                // baskhara
+                double a=polinomio.get(2),
+                        b = polinomio.get(1),
+                        c = polinomio.get(0);
                         
                 double arribaRaiz= Math.sqrt(b*b-4*a*c);
                 int cambioSigno = -1;
                 if(!Double.isNaN(arribaRaiz)){
                     do{
-                        raices[numeroRaiz] = Float.parseFloat((-b+(arribaRaiz*cambioSigno))/(2*a)+"");
-                        upgradeNumeros(new Ruffini(raices[numeroRaiz], this.numeros, this.formatoNum),numeroRaiz);
-                        raicesRet[numeroRaiz++] = this.fraccionToString(
+                        raices[contNumeroDeRaices] = Float.parseFloat((-b+(arribaRaiz*cambioSigno))/(2*a)+"");
+                        actualizarNumeros(new Ruffini(raices[contNumeroDeRaices], this.polinomio, this.formatoNum),contNumeroDeRaices);
+                        raicesEnString[contNumeroDeRaices] = this.fraccionAString(
                                 Float.parseFloat(-b+(arribaRaiz*cambioSigno)+""),
                                 Float.parseFloat((2*a)+"")
-                        );  
+                        );
+                        contNumeroDeRaices++;
                         cambioSigno = 1;
-                    }while(cambioSigno == 1);
+                    }while(cambioSigno == 1 && contNumeroDeRaices < 2);
                 }
-                cambios = false;
             }
+            continuoElCiclo = false;
         }
-        if(cambios){
-            this.cambios = false;
-            this.getRaices();
-        }//else
-            //System.out.println("Proceso terminado");
-        return raicesRet;
+        if(continuoElCiclo)
+            this.agarrarRaices();
+        return raicesEnString;
     }
 
-    public void upgradeNumeros(Ruffini map,int lugar){
-        map.calcular();
-        map.mostrar(lugar,txtArea);
-        this.numeros = map.retornaArray();
+    public void actualizarNumeros(Ruffini map,int lugar){
+        map.hacerCalculosDeLaTabla();
+        map.mostrarTablaRuffini(lugar,txtAreaDeVRuffini);
+        this.polinomio = map.tomarArray();
     }
-    public ArrayList<Integer> divisores(float valor){
+    public ArrayList<Integer> tomarDivisores(float valor){
         ArrayList<Integer> resultado = new ArrayList<>();
         
         if(Math.abs(valor) == 0){
@@ -130,12 +129,12 @@ public class Bases {
         
         return resultado;
     }
-    public void print(){
-        for(int x = 0;x<numeros.size();x++){
-            System.out.println(numeros.get(x));
+    public void imprimirRaices(){
+        for(int x = 0;x<polinomio.size();x++){
+            System.out.println(polinomio.get(x));
         }
     }
-    public Float toFloat(String numero){
+    public Float pasarAFloat(String numero){
         try {
            return Float.parseFloat(numero);
         } catch (NumberFormatException err) { 
@@ -143,7 +142,7 @@ public class Bases {
         }
 
     }
-    public void add(String numero){
-        this.numeros.add(this.toFloat(numero));
+    public void agregarTerminoAlPolinomio(String numero){
+        this.polinomio.add(this.pasarAFloat(numero));
     }
 }

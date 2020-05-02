@@ -100,9 +100,9 @@ public class Interfaz extends javax.swing.JFrame {
         String texto;
         String[] raices; 
         this.txtAreaRespuesta.setText("");
-        if(this.calc.getSize()>0){
+        if(this.calc.tomarGradoDelPolinomio()>0){
             this.calc.defRaices();
-            raices = this.calc.getRaices();
+            raices = this.calc.agarrarRaices();
             texto = "";
             for(int ite = 0;ite< raices.length;ite++){
                 if(raices[ite] ==null)
@@ -127,7 +127,7 @@ public class Interfaz extends javax.swing.JFrame {
             if(this.inputNumero.getText().equals(""))
                 this.calcularActionPerformed(null);
             else{
-                this.calc.add(this.inputNumero.getText());
+                this.calc.agregarTerminoAlPolinomio(this.inputNumero.getText());
                 this.labelPotencia.setText("x^"+(++potencia));
                 this.jTextArea1.setText("");
                 this.inputNumero.setText("");
